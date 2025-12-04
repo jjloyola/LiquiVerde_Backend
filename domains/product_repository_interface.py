@@ -13,6 +13,6 @@ class IProductRepository(ABC):
         pass
 
     @abstractmethod
-    def find_all(self) -> list[Product]:
+    def find_all(self, limit: int) -> list[Product]:
         """Get all products"""
         pass

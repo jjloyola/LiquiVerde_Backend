@@ -75,10 +75,10 @@ La Fase 0 (Configuración) se realizará en los repositorios de backend y fronte
 
 ### Tareas Backend:
 
-- [ ] **14.** Crear estructura de carpetas del proyecto backend
-- [ ] **15.** Configurar repositorio Git con `.gitignore` apropiado
-- [ ] **16.** Configurar entorno virtual de Python
-- [ ] **17.** Instalar dependencias base: FastAPI/Flask, psycopg2
+- [x] **14.** Crear estructura de carpetas del proyecto backend
+- [x] **15.** Configurar repositorio Git con `.gitignore` apropiado
+- [x] **16.** Configurar entorno virtual de Python
+- [x] **17.** Instalar dependencias base: FastAPI/Flask, psycopg2
 - [ ] **18.** Configurar conexión a PostgreSQL (usar base de datos de Fase 1)
 - [ ] **19.** Crear archivo `.env.example` con variables de entorno necesarias
 - [ ] **20.** Configurar scripts básicos de inicialización
