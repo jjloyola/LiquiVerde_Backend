@@ -16,3 +16,8 @@ class IProductRepository(ABC):
     def find_all(self, limit: int) -> list[Product]:
         """Get all products"""
         pass
+
+    @abstractmethod
+    def find_by_barcode(self, barcode: str) -> Product | None:
+        """Find a product by barcode"""
+        pass

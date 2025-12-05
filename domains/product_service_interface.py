@@ -13,3 +13,7 @@ class IProductService(ABC):
         """Get a product by ID"""
         pass
 
+    @abstractmethod
+    def get_by_barcode(self, barcode: str) -> Product | None:
+        """Get a product by barcode"""
+        pass

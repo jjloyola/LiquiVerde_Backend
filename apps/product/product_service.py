@@ -13,3 +13,7 @@ class ProductService(IProductService):
     def get_product_by_id(self, product_id: int) -> Product:
         """Get a product by ID"""
         return self.product_repository.find_by_id(product_id)
+
+    def get_by_barcode(self, barcode: str) -> Product | None:
+        """Get a product by barcode"""
+        return self.product_repository.find_by_barcode(barcode)
