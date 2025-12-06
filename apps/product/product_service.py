@@ -17,3 +17,7 @@ class ProductService(IProductService):
     def get_by_barcode(self, barcode: str) -> Product | None:
         """Get a product by barcode"""
         return self.product_repository.find_by_barcode(barcode)
+
+    def get_by_name_like(self, text: str) -> list[Product]:
+        """Get products by name like"""
+        return self.product_repository.find_by_name_like(text)

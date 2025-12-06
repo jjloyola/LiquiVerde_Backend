@@ -2,6 +2,7 @@ from sqlmodel import Session, select
 from domains.product import Product
 from domains.product_repository_interface import IProductRepository
 from infrastructures.database.models import ProductTable
+from sqlalchemy import text
 
 class ProductRepository(IProductRepository):
     def __init__(self, session: Session):
@@ -9,7 +10,7 @@ class ProductRepository(IProductRepository):
 
     def save(self, product: Product) -> Product:
         """Save a new product and return it with the generated ID"""
-        product_table = ProductTable(
+        db_product = ProductTable(
             name=product.name,
             barcode=product.barcode,
             category=product.category,
@@ -18,88 +19,109 @@ class ProductRepository(IProductRepository):
             unit=product.unit,
             image_url=product.image_url
         )
-        self.session.add(product_table)
+        self.session.add(db_product)
         self.session.commit()
-        self.session.refresh(product_table)
+        self.session.refresh(db_product)
         
         return Product(
-            id=product_table.id, 
-            name=product_table.name,
-            barcode=product_table.barcode, 
-            category=product_table.category,
-            brand=product_table.brand, 
-            description=product_table.description, 
-            unit=product_table.unit, 
-            image_url=product_table.image_url
+            id=db_product.id, 
+            name=db_product.name,
+            barcode=db_product.barcode, 
+            category=db_product.category,
+            brand=db_product.brand, 
+            description=db_product.description, 
+            unit=db_product.unit, 
+            image_url=db_product.image_url
         )
     
     def find_by_id(self, product_id: int) -> Product | None:
         """Find a product by ID"""
         statement = select(ProductTable).where(ProductTable.id == product_id)
-        product_table = self.session.exec(statement).first()
-        if not product_table:
+        db_product = self.session.exec(statement).first()
+        if not db_product:
             return None
         return Product(
-            id=product_table.id, 
-            name=product_table.name,
-            barcode=product_table.barcode, 
-            category=product_table.category,
-            brand=product_table.brand, 
-            description=product_table.description, 
-            unit=product_table.unit, 
-            image_url=product_table.image_url
+            id=db_product.id, 
+            name=db_product.name,
+            barcode=db_product.barcode, 
+            category=db_product.category,
+            brand=db_product.brand, 
+            description=db_product.description, 
+            unit=db_product.unit, 
+            image_url=db_product.image_url
         )
     
     def find_by_barcode(self, barcode: str) -> Product | None:
         """Find a product by barcode"""
         statement = select(ProductTable).where(ProductTable.barcode == barcode)
-        product = self.session.exec(statement).first()
-        if not product:
+        db_product = self.session.exec(statement).first()
+        if not db_product:
                 return None
         return Product(
-                id=product.id, 
-                name=product.name,
-                barcode=product.barcode, 
-                category=product.category,
-                brand=product.brand, 
-                description=product.description, 
-                unit=product.unit, 
-                image_url=product.image_url
+                id=db_product.id, 
+                name=db_product.name,
+                barcode=db_product.barcode, 
+                category=db_product.category,
+                brand=db_product.brand, 
+                description=db_product.description, 
+                unit=db_product.unit, 
+                image_url=db_product.image_url
             )
     
-    def find_by_name_like(self, name: str) -> list[Product]:
-        """Find products by name like"""
-        statement = select(ProductTable).where(ProductTable.name.like(f"%{name}%"))
-        products = self.session.exec(statement).all()
-        if not products:
+    def find_by_name_like(self, search_text: str) -> list[Product]:
+        limit = 50
+        """Find products by advanced text matching with similarity ordering"""
+        query = text("""
+            WITH params AS (
+            SELECT immutable_unaccent(lower(:search_text)) AS qstr
+            )
+            SELECT
+                p.*,
+                similarity(
+                    immutable_unaccent(lower(p.product_name)),
+                    params.qstr
+                ) AS sim
+            FROM products p, params
+            WHERE immutable_unaccent(lower(p.product_name))
+                ILIKE '%' || params.qstr || '%'
+            ORDER BY
+                sim DESC
+            LIMIT :limit;
+        """)
+        params = {'search_text': search_text, 'limit': limit}
+
+        with self.session.begin() as connection:
+            db_products = connection.execute(query, params).fetchall()
+        
+        if not db_products:
             return []
 
-        products = []
-        for product_table in products:
+        domain_products = []
+        for db_product in db_products:
             current_product = Product(
-                id=product_table.id, 
-                name=product_table.name,
-                barcode=product_table.barcode, 
-                category=product_table.category,
-                brand=product_table.brand, 
-                description=product_table.description, 
-                unit=product_table.unit, 
-                image_url=product_table.image_url
+                id=db_product.id, 
+                name=db_product.name,
+                barcode=db_product.barcode, 
+                category=db_product.category,
+                brand=db_product.brand, 
+                description=db_product.description, 
+                unit=db_product.unit, 
+                image_url=db_product.image_url
             )
-            products.append(current_product)
-        return products
+            domain_products.append(current_product)
+        return domain_products
     
     def find_all(self, limit: int) -> list[Product]:
         """Get all products"""
         statement = select(ProductTable).limit(limit)
         
 
-        products = self.session.exec(statement).all()
-        if not products:
+        db_products = self.session.exec(statement).all()
+        if not db_products:
             return []
 
-        products = []
-        for p in products:
+        domain_products = []
+        for p in db_products:
             current_product = Product(
                 id=p.id, 
                 name=p.name,  
@@ -110,5 +132,5 @@ class ProductRepository(IProductRepository):
                 unit=p.unit, 
                 image_url=p.image_url
             )
-            products.append(current_product)
-        return products
+            domain_products.append(current_product)
+        return domain_products

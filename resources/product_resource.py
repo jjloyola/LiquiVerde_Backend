@@ -32,3 +32,15 @@ def get_by_barcode(barcode: str, product_service: IProductService = Depends(get_
             raise HTTPException(status_code=404, detail="Product not found")
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@product_router.get("/get_by_name_like/{text}")
+def get_by_name_like(text: str, product_service: IProductService = Depends(get_product_service)):
+    try:
+        products = product_service.get_by_name_like(text)
+        if products:
+            return [product.to_dict() for product in products]
+        else:
+            raise HTTPException(status_code=404, detail="Products not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error")
