@@ -8,7 +8,7 @@ product_router = APIRouter(prefix="/products", tags=["products"])
 def get_all_products(limit: int = 100, product_service: IProductService = Depends(get_product_service)):
     try:
         products = product_service.get_all_products(limit)
-        return [product.to_dict() for product in products]
+        return [product.to_dict() for product in products if product is not None]
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error. Error: " + str(e))
 
@@ -41,7 +41,7 @@ def get_by_name_like(text: str, product_service: IProductService = Depends(get_p
     try:
         products = product_service.get_by_name_like(text)
         if products:
-            return [product.to_dict() for product in products]
+            return [product.to_dict() for product in products if product is not None]
         else:
             raise HTTPException(status_code=404, detail="Products not found")
     except Exception as e:

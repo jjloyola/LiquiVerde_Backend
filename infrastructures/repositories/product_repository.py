@@ -1,4 +1,5 @@
 from sqlmodel import Session, select
+from decimal import Decimal
 from domains.product import Product
 from domains.product_repository_interface import IProductRepository
 from infrastructures.database.models import ProductTable
@@ -18,7 +19,8 @@ class ProductRepository(IProductRepository):
             brand=product.brand,
             description=product.description,
             unit=product.unit,
-            image_url=product.image_url
+            image_url=product.image_url,
+            total_score=product.total_score
         )
         self.session.add(db_product)
         self.session.commit()
@@ -27,23 +29,21 @@ class ProductRepository(IProductRepository):
         return Product(
             id=db_product.id, 
             product_name=db_product.product_name,
-            barcode=db_product.barcode, 
-            category=db_product.category,
-            brand=db_product.brand, 
-            description=db_product.description, 
-            unit=db_product.unit, 
-            image_url=db_product.image_url
+            barcode=db_product.barcode or "", 
+            category=db_product.category or "", 
+            brand=db_product.brand or "", 
+            description=db_product.description or "", 
+            unit=db_product.unit or "", 
+            image_url=db_product.image_url or "",
+            total_score=db_product.total_score
         )
     
     def find_by_id(self, product_id: int) -> ProductGetDTO | None:
         """Find a product by ID"""
         statement = select(ProductTable).where(ProductTable.id == product_id)
-        
-        print(statement)
         try:
             db_product = self.session.exec(statement).first()
         except Exception as e:
-            print(f"Error executing query: {e}")
             return None
         if not db_product:
             return None
@@ -58,13 +58,13 @@ class ProductRepository(IProductRepository):
         return Product(
                 id=db_product.id, 
                 product_name=db_product.product_name,
-                barcode=db_product.barcode, 
-                category=db_product.category,
-                brand=db_product.brand, 
-                description=db_product.description, 
-                unit=db_product.unit, 
-                image_url=db_product.image_url,
-                total_score=db_product.total_score if db_product.total_score else 0
+                barcode=db_product.barcode or "", 
+                category=db_product.category or "", 
+                brand=db_product.brand or "", 
+                description=db_product.description or "", 
+                unit=db_product.unit or "", 
+                image_url=db_product.image_url or "",
+                total_score=db_product.total_score
             )
     
     def find_by_name_like(self, search_text: str) -> list[Product]:
@@ -94,7 +94,6 @@ class ProductRepository(IProductRepository):
             result = self.session.exec(query)
             db_products = result.all()
         except Exception as e:
-            print(f"Error executing query: {e}")
             return []
 
         domain_products = []
@@ -102,13 +101,13 @@ class ProductRepository(IProductRepository):
             current_product = Product(
                 id=db_product.id, 
                 product_name=db_product.product_name,
-                barcode=db_product.barcode, 
-                category=db_product.category,
-                brand=db_product.brand, 
-                description=db_product.description, 
-                unit=db_product.unit, 
-                image_url=db_product.image_url,
-                total_score=db_product.total_score if db_product.total_score else 0
+                barcode=db_product.barcode or "", 
+                category=db_product.category or "", 
+                brand=db_product.brand or "", 
+                description=db_product.description or "", 
+                unit=db_product.unit or "", 
+                image_url=db_product.image_url or "",
+                total_score=db_product.total_score
             )
             domain_products.append(current_product)
         return domain_products
@@ -127,12 +126,13 @@ class ProductRepository(IProductRepository):
             current_product = Product(
                 id=p.id, 
                 product_name=p.product_name,  
-                barcode=p.barcode, 
-                category=p.category,
-                brand=p.brand, 
-                description=p.description, 
-                unit=p.unit, 
-                image_url=p.image_url
+                barcode=p.barcode or "", 
+                category=p.category or "", 
+                brand=p.brand or "", 
+                description=p.description or "", 
+                unit=p.unit or "", 
+                image_url=p.image_url or "",
+                total_score=p.total_score
             )
             domain_products.append(current_product)
         return domain_products
