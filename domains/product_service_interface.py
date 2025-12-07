@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from domains.product import Product
+from resources.dtos.product_get_dto import ProductGetDTO
 
 class IProductService(ABC):
     @abstractmethod
@@ -9,7 +10,7 @@ class IProductService(ABC):
         pass
 
     @abstractmethod
-    def get_product_by_id(self, product_id: int) -> Product:
+    def get_product_by_id(self, product_id: int) -> ProductGetDTO | None:
         """Get a product by ID"""
         pass
 
