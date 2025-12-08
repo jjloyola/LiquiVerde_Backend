@@ -1,6 +1,5 @@
 from domains.product import Product
 from abc import ABC, abstractmethod
-from resources.dtos.product_get_dto import ProductGetDTO
 
 class IProductRepository(ABC):
     @abstractmethod
@@ -9,7 +8,7 @@ class IProductRepository(ABC):
         pass
 
     @abstractmethod
-    def find_by_id(self, product_id: int) -> ProductGetDTO | None:
+    def find_by_id(self, product_id: int) -> Product | None:
         """Find a product by ID"""
         pass
 

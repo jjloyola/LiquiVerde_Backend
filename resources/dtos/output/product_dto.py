@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict
 
 
-class ProductGetDTO(BaseModel):
+class ProductDTO(BaseModel):
     # Primary key
     id: Optional[int] = None
     
@@ -46,10 +46,6 @@ class ProductGetDTO(BaseModel):
     social_score: Optional[Decimal] = None
     total_score: Optional[Decimal] = None
     
-    # Timestamps
-    created_at: datetime
-    updated_at: datetime
-    calculated_at: Optional[datetime] = None
     
     model_config = ConfigDict(
         from_attributes=True,
@@ -58,3 +54,8 @@ class ProductGetDTO(BaseModel):
             datetime: lambda v: v.isoformat()
         }
     )
+
+
+
+
+

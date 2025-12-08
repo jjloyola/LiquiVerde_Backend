@@ -1,7 +1,6 @@
 from domains.product import Product
 from domains.product_repository_interface import IProductRepository
 from domains.product_service_interface import IProductService
-from resources.dtos.product_get_dto import ProductGetDTO
 
 class ProductService(IProductService):
     def __init__(self, product_repository: IProductRepository):
@@ -11,7 +10,7 @@ class ProductService(IProductService):
         """Get all products"""
         return self.product_repository.find_all(limit)
 
-    def get_product_by_id(self, product_id: int) -> ProductGetDTO | None:
+    def get_product_by_id(self, product_id: int) -> Product | None:
         """Get a product by ID"""
         return self.product_repository.find_by_id(product_id)
 
