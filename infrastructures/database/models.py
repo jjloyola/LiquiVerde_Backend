@@ -52,3 +52,33 @@ class ProductTable(SQLModel, table=True):
     calculated_at: datetime | None = Field(default=None)
 
 
+class ShoppingListsTable(SQLModel, table=True):
+    __tablename__ = "shopping_lists"
+    
+    # Primary key
+    id: int | None = Field(default=None, primary_key=True)
+
+    # Shopping list information
+    name: str = Field(max_length=255)
+    budget_max: Decimal | None = Field(default=None, max_digits=10, decimal_places=2)
+    currency: str | None = Field(default=None, max_length=3)
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime | None = Field(default=datetime.now)
+
+class ListItemsTable(SQLModel, table=True):
+    __tablename__ = "shopping_list_items"
+    
+    # Primary key
+    id: int | None = Field(default=None, primary_key=True)
+
+    #Foreign keys
+    list_id: int = Field(foreign_key="shopping_lists.id")
+    product_id: int = Field(foreign_key="products.id")
+    
+    # Item information on the list
+    quantity: int = Field(default=1)
+    priority: int = Field(default=5)
+    notes: str | None = Field(default=None)
+    added_at: datetime = Field(default_factory=datetime.now)
+
+    

@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from resources.product_resource import product_router
+from resources.shopping_list_resource import shopping_list_router
 from contextlib import asynccontextmanager
 from infrastructures.database.connection import create_db_and_tables
 
@@ -30,3 +31,4 @@ app.add_middleware(
 
 
 app.include_router(product_router)
+app.include_router(shopping_list_router)
