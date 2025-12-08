@@ -16,29 +16,29 @@ class ProductRepository(IProductRepository):
         return Product(
             id=db_product.id,
             product_name=db_product.product_name,
-            barcode=db_product.barcode or "",
-            category=db_product.category or "",
-            brand=db_product.brand or "",
-            description=db_product.description or "",
-            unit=db_product.unit or "",
-            image_url=db_product.image_url or "",
-            total_score=db_product.total_score or None,
-            carbon_footprint=db_product.carbon_footprint or None,
-            ecoscore_score=db_product.ecoscore_score or None,
-            ecoscore_grade=db_product.ecoscore_grade or None,
-            packaging_type=db_product.packaging_type or None,
-            packaging_materials=db_product.packaging_materials or None,
-            packaging_recyclable=db_product.packaging_recyclable or None,
-            origin_country=db_product.origin_country or None,
-            countries_tags=db_product.countries_tags or None,
-            is_fair_trade=db_product.is_fair_trade or False,
-            is_organic=db_product.is_organic or False,
-            is_local=db_product.is_local or False,
-            labels_tags=db_product.labels_tags or None,
-            data_source=db_product.data_source or "open_food_facts",
-            economic_score=db_product.economic_score or None,
-            environmental_score=db_product.environmental_score or None,
-            social_score=db_product.social_score or None,
+            barcode=db_product.barcode,
+            category=db_product.category,
+            brand=db_product.brand,
+            description=db_product.description,
+            unit=db_product.unit,
+            image_url=db_product.image_url,
+            total_score=db_product.total_score,
+            carbon_footprint=db_product.carbon_footprint,
+            ecoscore_score=db_product.ecoscore_score,
+            ecoscore_grade=db_product.ecoscore_grade,
+            packaging_type=db_product.packaging_type,
+            packaging_materials=db_product.packaging_materials,
+            packaging_recyclable=db_product.packaging_recyclable,
+            origin_country=db_product.origin_country,
+            countries_tags=db_product.countries_tags,
+            is_fair_trade=db_product.is_fair_trade,
+            is_organic=db_product.is_organic,
+            is_local=db_product.is_local,
+            labels_tags=db_product.labels_tags,
+            data_source=db_product.data_source,
+            economic_score=db_product.economic_score,
+            environmental_score=db_product.environmental_score,
+            social_score=db_product.social_score,
         )
 
     def save(self, product: Product) -> Product:
@@ -57,17 +57,7 @@ class ProductRepository(IProductRepository):
         self.session.commit()
         self.session.refresh(db_product)
         
-        return Product(
-            id=db_product.id, 
-            product_name=db_product.product_name,
-            barcode=db_product.barcode or "", 
-            category=db_product.category or "", 
-            brand=db_product.brand or "", 
-            description=db_product.description or "", 
-            unit=db_product.unit or "", 
-            image_url=db_product.image_url or "",
-            total_score=db_product.total_score
-        )
+        return self._fill_product_from_db(db_product)
     
     def find_by_id(self, product_id: int) -> Product | None:
         """Find a product by ID"""
@@ -86,17 +76,7 @@ class ProductRepository(IProductRepository):
         db_product = self.session.exec(statement).first()
         if not db_product:
                 return None
-        return Product(
-                id=db_product.id, 
-                product_name=db_product.product_name,
-                barcode=db_product.barcode or "", 
-                category=db_product.category or "", 
-                brand=db_product.brand or "", 
-                description=db_product.description or "", 
-                unit=db_product.unit or "", 
-                image_url=db_product.image_url or "",
-                total_score=db_product.total_score
-            )
+        return self._fill_product_from_db(db_product)
     
     def find_by_name_like(self, search_text: str) -> list[Product]:
         limit = 50

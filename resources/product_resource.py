@@ -35,6 +35,8 @@ def get_by_barcode(barcode: str, product_service: IProductService = Depends(get_
             return product.to_dict()
         else:
             raise HTTPException(status_code=404, detail="Product not found")
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error. Error: " + str(e))
 
@@ -57,6 +59,7 @@ def get_by_name_like(text: str, product_service: IProductService = Depends(get_p
         product_list_search_result_dto = ProductListSearchResultDTO(products=products_short_dto)
 
         return product_list_search_result_dto.model_dump(mode="json")
-
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error. Error: " + str(e))

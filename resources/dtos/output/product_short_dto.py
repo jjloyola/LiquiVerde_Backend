@@ -8,6 +8,7 @@ class ProductShortDTO(BaseModel):
     id: Optional[int] = None
     
     # Basic product information
+    barcode: Optional[str] = Field(default=None, max_length=50)
     product_name: str = Field(max_length=255)
     category: Optional[str] = Field(default=None, max_length=100)
     brand: Optional[str] = Field(default=None, max_length=100)
