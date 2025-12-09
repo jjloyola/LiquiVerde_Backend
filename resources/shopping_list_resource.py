@@ -16,6 +16,9 @@ from resources.dtos.output.product_dto import ProductWithStoreDto
 
 shopping_list_router = APIRouter(prefix="/api/lists", tags=["shopping_lists"])
 
+# APIS NO FUNCIONALES, NO TESTEADAS O NO COMPLETADAS
+
+
 @shopping_list_router.post("/{list_id}/items")
 def add_item_to_list(list_id: Optional[int], request: AddItemRequestDto, shopping_list_service: IShoppingListService = Depends(get_shopping_list_service)):
     """Add a product to a shopping list"""
