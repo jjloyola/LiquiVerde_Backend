@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
+from decimal import Decimal
+from typing import List
 from domains.shopping_list import ShoppingList
 from domains.list_item import ListItem
+from domains.optimization.shopping_list_optimization_data import ShoppingListOptimizationData
 
 
 class IShoppingListService(ABC):
@@ -22,3 +25,9 @@ class IShoppingListService(ABC):
     def delete_list_item(self, list_id: int, item_id: int) -> bool:
         """Delete an item from a shopping list"""
         pass
+
+    @abstractmethod
+    def optimize_shopping_list(self, optimization_data: ShoppingListOptimizationData) -> ShoppingListOptimizationData:
+        """Optimize a shopping list"""
+        pass
+    

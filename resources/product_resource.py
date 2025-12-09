@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from domains.product import Product
+from domains.product import ProductWithStore
 from domains.product_service_interface import IProductService
 from dependencies.product_dependencies import get_product_service
 from resources.dtos.output.product_list_search_result_dto import ProductListSearchResultDTO
@@ -44,7 +44,7 @@ def get_by_barcode(barcode: str, product_service: IProductService = Depends(get_
 @product_router.get("/get_by_name_like/{text}")
 def get_by_name_like(text: str, product_service: IProductService = Depends(get_product_service)):
     try:
-        domain_products: list[Product] = product_service.get_by_name_like(text)
+        domain_products: list[ProductWithStore] = product_service.get_by_name_like(text)
 
         if not domain_products:
             raise HTTPException(status_code=404, detail="Products not found")

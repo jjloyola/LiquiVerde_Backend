@@ -1,6 +1,63 @@
 from datetime import datetime
 from decimal import Decimal
+from typing import List
 from sqlmodel import SQLModel, Field
+from sqlmodel import Relationship
+
+
+
+class ProductStoresTable(SQLModel, table=True):
+    __tablename__ = "product_stores"
+    
+    # Primary key
+    id: int | None = Field(default=None, primary_key=True)
+    
+    # Foreign keys
+    product_id: int = Field(foreign_key="products.id")
+    store_id: int = Field(foreign_key="stores.id")
+    price: Decimal = Field(max_digits=10, decimal_places=2)
+    currency: str = Field(max_length=3)
+    availability: bool = Field(default=True)
+    stock_quantity: int = Field(default=0)
+    last_updated: datetime = Field(default_factory=datetime.now)
+    
+    # Relationships
+    product: "ProductTable" = Relationship(back_populates="product_stores")
+    store: "StoreTable" = Relationship(back_populates="product_stores")
+    
+
+class StoreTable(SQLModel, table=True):
+    __tablename__ = "stores"
+    
+    # Primary key
+    id: int | None = Field(default=None, primary_key=True)
+    
+    # Basic store information
+    name: str = Field(max_length=255)
+    address: str | None = Field(default=None)
+    city: str | None = Field(default=None, max_length=100)
+    country: str | None = Field(default=None, max_length=100)
+    latitude: Decimal | None = Field(default=None, max_digits=10, decimal_places=2)
+    longitude: Decimal | None = Field(default=None, max_digits=10, decimal_places=2)
+    phone: str | None = Field(default=None, max_length=50)
+    website: str | None = Field(default=None)
+    created_at: datetime = Field(default_factory=datetime.now)
+    
+    # Relationships
+    # Direct relationship to junction table (to access price, availability, etc.)
+    product_stores: List["ProductStoresTable"] = Relationship(back_populates="store")
+    
+    # Many-to-many relationship to products (through junction table)
+    products: List["ProductTable"] = Relationship(
+        link_model=ProductStoresTable,
+        sa_relationship_kwargs={
+            "primaryjoin": "StoreTable.id == ProductStoresTable.store_id",
+            "secondaryjoin": "ProductStoresTable.product_id == ProductTable.id",
+            "viewonly": False
+        }
+    )
+    
+
 
 class ProductTable(SQLModel, table=True):
     __tablename__ = "products"
@@ -50,6 +107,20 @@ class ProductTable(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
     calculated_at: datetime | None = Field(default=None)
+    
+    # Relationships
+    # Direct relationship to junction table (to access price, availability, etc.)
+    product_stores: List["ProductStoresTable"] = Relationship(back_populates="product")
+    
+    # Many-to-many relationship to stores (through junction table)
+    stores: List["StoreTable"] = Relationship(
+        link_model=ProductStoresTable,
+        sa_relationship_kwargs={
+            "primaryjoin": "ProductTable.id == ProductStoresTable.product_id",
+            "secondaryjoin": "ProductStoresTable.store_id == StoreTable.id",
+            "viewonly": False
+        }
+    )
 
 
 class ShoppingListsTable(SQLModel, table=True):
@@ -66,7 +137,7 @@ class ShoppingListsTable(SQLModel, table=True):
     updated_at: datetime | None = Field(default=datetime.now)
 
 class ListItemsTable(SQLModel, table=True):
-    __tablename__ = "shopping_list_items"
+    __tablename__ = "list_items"
     
     # Primary key
     id: int | None = Field(default=None, primary_key=True)

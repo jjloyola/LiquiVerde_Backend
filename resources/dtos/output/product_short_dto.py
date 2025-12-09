@@ -15,6 +15,7 @@ class ProductShortDTO(BaseModel):
     image_url: Optional[str] = None
     total_score: Optional[Decimal] = None
     
+    
     model_config = ConfigDict(
         from_attributes=True,
         json_encoders={

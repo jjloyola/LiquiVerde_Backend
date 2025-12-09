@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
-from resources.dtos.output.product_dto import ProductDto
+from resources.dtos.output.product_dto import ProductWithStoreDto
 from resources.dtos.output.optimization.evaluated_shopping_list_dto import EvaluatedShoppingListDto
 
 

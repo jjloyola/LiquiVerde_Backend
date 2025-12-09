@@ -3,8 +3,10 @@ from decimal import Decimal
 from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict
 
+from resources.dtos.output.store_with_price_dto import ProductStoreWithPriceDto
 
-class ProductDto(BaseModel):
+
+class ProductWithStoreDto(BaseModel):
     # Primary key
     id: Optional[int] = None
     
@@ -45,6 +47,7 @@ class ProductDto(BaseModel):
     environmental_score: Optional[Decimal] = None
     social_score: Optional[Decimal] = None
     total_score: Optional[Decimal] = None
+    
     
     
     model_config = ConfigDict(

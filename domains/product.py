@@ -1,11 +1,13 @@
+
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Optional
-
 from pydantic import Field
 
+from domains.product_store_with_price import ProductStoreWithPrice
+
 @dataclass
-class Product:
+class ProductWithStore:
     # Primary key
     id: Optional[int] = None
     
@@ -47,9 +49,10 @@ class Product:
     social_score: Optional[Decimal] = None
     total_score: Optional[Decimal] = None
     
-
-
+    # Store information
+    product_stores_with_price: Optional[list[ProductStoreWithPrice]] = None
     
+
 
     def to_dict(self):
         """Convert Product to dictionary. Always returns a valid dict."""
@@ -79,6 +82,7 @@ class Product:
             "environmental_score": self.environmental_score,
             "social_score": self.social_score,
             "total_score": str(self.total_score) if self.total_score is not None else None,
+            "product_stores_with_price": [product_store_with_price.to_dict() for product_store_with_price in self.product_stores_with_price] if self.product_stores_with_price is not None else None,
         }
 
     @classmethod
@@ -117,4 +121,8 @@ class Product:
             environmental_score=data["environmental_score"],
             social_score=data["social_score"],
             total_score=total_score,
+            store_name=data["store_name"],
+            price=data["price"],
+            availability=data["availability"],
+            stock_quantity=data["stock_quantity"],
         )
