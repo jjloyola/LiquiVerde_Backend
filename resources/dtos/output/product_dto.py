@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict
 
 
-class ProductDTO(BaseModel):
+class ProductDto(BaseModel):
     # Primary key
     id: Optional[int] = None
     
@@ -50,8 +50,8 @@ class ProductDTO(BaseModel):
     model_config = ConfigDict(
         from_attributes=True,
         json_encoders={
-            Decimal: str,
-            datetime: lambda v: v.isoformat()
+            datetime: lambda v: v.isoformat(),
+            Decimal: float,
         }
     )
 

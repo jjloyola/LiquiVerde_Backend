@@ -1,10 +1,15 @@
+import logging
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends
+from pydantic import ValidationError
 from domains.list_item import ListItem
 from domains.shopping_list_service_interface import IShoppingListService
 from dependencies.shopping_list_dependencies import get_shopping_list_service
 from resources.dtos.input.add_item_request_dto import AddItemRequestDto
+from resources.dtos.input.optimization.shopping_list_optimization_input_dto import ShoppingListOptimizationInputDto
 from resources.dtos.input.update_item_request_dto import UpdateItemRequestDto
+from resources.dtos.output.optimization.evaluated_shopping_list_dto import EvaluatedShoppingListDto
+from resources.dtos.output.optimization.shopping_list_optimization_out_dto import ShoppingListOptimizationOutputDto
 
 shopping_list_router = APIRouter(prefix="/api/lists", tags=["shopping_lists"])
 
@@ -55,3 +60,57 @@ def delete_list_item(list_id: int, item_id: int, shopping_list_service: IShoppin
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error. Error: " + str(e))
+
+
+
+@shopping_list_router.post("/optimize")
+def optimize_shopping_list(input_request: ShoppingListOptimizationInputDto, shopping_list_service: IShoppingListService = Depends(get_shopping_list_service)):
+    """Optimize a shopping list"""
+
+    try:
+        original_shopping_list = EvaluatedShoppingListDto()
+        for item in input_request.list_to_optimize:
+            original_shopping_list.shopping_list.append(item)
+
+        original_shopping_list.total_price = 1111 # GET FROM database for all products
+        original_shopping_list.sustainability_score = sum(item.total_score for item in input_request.list_to_optimize)
+        original_shopping_list.price_score = 1234 # GET FROM database for all products
+        original_shopping_list.total_objective_score = original_shopping_list.sustainability_score + original_shopping_list.price_score
+
+
+
+        #dummy optimization data
+        result = ShoppingListOptimizationOutputDto(
+            original_shopping_list=original_shopping_list,
+            optimized_shopping_list=original_shopping_list,
+            price_importance_percentage=input_request.price_importance_percentage,
+            sustainability_importance_percentage=input_request.sustainability_importance_percentage,
+            budget_max=input_request.budget_max
+        )   
+
+        result.difference_in_price = result.original_shopping_list.total_price - result.optimized_shopping_list.total_price
+        result.difference_in_sustainability_score = result.original_shopping_list.sustainability_score - result.optimized_shopping_list.sustainability_score
+        result.difference_in_total_score = result.original_shopping_list.total_objective_score - result.optimized_shopping_list.total_objective_score
+    except ValidationError as e:
+        error_details = []
+        for error in e.errors():
+            field = " -> ".join(str(loc) for loc in error["loc"])
+            error_details.append(f"{field}: {error['msg']}")
+        error_message = "Validation error: " + "; ".join(error_details)
+        logging.error(error_message)
+        raise HTTPException(status_code=422, detail=error_message)
+    except Exception as e:
+        logging.error("Error optimizing shopping list: " + str(e))
+        raise HTTPException(status_code=500, detail="Internal server error. Error: " + str(e))
+    return result.model_dump(mode = "json")
+
+    '''
+    
+    try:
+        optimized_shopping_list = shopping_list_service.optimize_shopping_list(request)
+        return optimized_shopping_list.to_dict()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error. Error: " + str(e))
+    '''
