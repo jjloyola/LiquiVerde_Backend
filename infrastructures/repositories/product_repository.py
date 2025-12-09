@@ -43,6 +43,9 @@ class ProductRepository(IProductRepository):
             
         )
     def fill_product_with_stores(self, db_product: ProductTable) -> ProductWithStore:
+       
+        
+        
         product_store_with_price_list: list[ProductStoreWithPrice] = []
         for i  in range(len(db_product.product_stores)):
             product_store = db_product.product_stores[i]
@@ -177,3 +180,43 @@ class ProductRepository(IProductRepository):
             current_product = self._fill_one_product_from_db(db_product)
             domain_products.append(current_product)
         return domain_products
+    
+    
+    def find_substitute_by_name_like(self, product_name: str) -> ProductWithStore | None:
+        """Find a substitute for a product by name like"""
+        
+        limit = 50
+        """Find products by advanced text matching with similarity ordering"""
+        query = text("""
+            WITH params AS (
+                SELECT immutable_unaccent(lower(:search_text)) AS qstr
+                )
+                SELECT
+                    p.*,
+                    similarity(
+                        immutable_unaccent(lower(p.product_name)),
+                        params.qstr
+                    ) AS sim
+                FROM products p, params
+                WHERE immutable_unaccent(lower(p.product_name))
+                    ILIKE '%' || params.qstr || '%'
+            ORDER BY
+                sim DESC
+            LIMIT :limit;
+        """)
+
+        query = query.bindparams(search_text=product_name, limit=limit)
+
+        try:
+            result = self.session.exec(query)
+            db_products = result.all()
+        except Exception as e:
+            return []
+
+        domain_products = []
+        for db_product in db_products:
+            current_product = self._fill_one_product_from_db(db_product)
+            domain_products.append(current_product)
+        
+        
+        

@@ -1,6 +1,8 @@
 from fastapi import Depends
 from sqlmodel import Session
 from apps.shopping_list.shopping_list_service import ShoppingListService
+from dependencies.product_dependencies import get_product_repository
+from domains.product_repository_interface import IProductRepository
 from domains.shopping_list_repository_interface import IShoppingListRepository
 from domains.list_item_repository_interface import IListItemRepository
 from infrastructures.repositories.shopping_list_repository import ShoppingListRepository
@@ -17,7 +19,8 @@ def get_list_item_repository(session: Session = Depends(get_session)) -> IListIt
 
 def get_shopping_list_service(
     shopping_list_repository: IShoppingListRepository = Depends(get_shopping_list_repository),
-    list_item_repository: IListItemRepository = Depends(get_list_item_repository)
+    list_item_repository: IListItemRepository = Depends(get_list_item_repository),
+    product_repository: IProductRepository = Depends(get_product_repository)
 ) -> ShoppingListService:
     """Create and return ShoppingListService instance"""
-    return ShoppingListService(shopping_list_repository, list_item_repository)
+    return ShoppingListService(shopping_list_repository, list_item_repository, product_repository)

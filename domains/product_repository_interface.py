@@ -21,3 +21,7 @@ class IProductRepository(ABC):
     def find_by_barcode(self, barcode: str) -> ProductWithStore | None:
         """Find a product by barcode"""
         pass
+    @abstractmethod
+    def find_substitute_by_name_like(self, product_name: str) -> ProductWithStore | None:
+        """Find a substitute for a product by name like"""
+        pass

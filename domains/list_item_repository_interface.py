@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from domains.list_item import ListItem
+from domains.product import ProductWithStore
 
 class IListItemRepository(ABC):
     @abstractmethod
@@ -26,3 +27,4 @@ class IListItemRepository(ABC):
     def delete(self, item_id: int) -> bool:
         """Delete a list item by ID"""
         pass
+

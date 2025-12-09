@@ -1,5 +1,7 @@
 import logging
 from typing import Optional
+from domains.optimization.optimizatin_product_with_store import OptimizationProductWithStore
+from domains.optimization.optimization_product_list_with_store import OptimizationProductListWithStore
 from domains.optimization.shopping_list_optimization_data import ShoppingListOptimizationData
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import ValidationError
@@ -70,57 +72,44 @@ def optimize_shopping_list(input_request: ShoppingListOptimizationInputDto, shop
 
     try:
        
+        result: ShoppingListOptimizationOutputDto = None
         
-        optimization_result = ShoppingListOptimizationData(
-            original_shopping_list_ids=[item.id for item in input_request.list_to_optimize],
-            optimized_shopping_list= None,
+        original_shopping_list: OptimizationProductListWithStore = OptimizationProductListWithStore(
+            products_with_store=[OptimizationProductWithStore(product_id=item.product_id, 
+                                                              store_id=item.store_id, 
+                                                              quantity=item.quantity, 
+                                                              price=item.price, 
+                                                              sustainability_score=item.sustainability_score, 
+                                                              ) for item in input_request.list_to_optimize],
             price_importance_percentage=input_request.price_importance_percentage,
             sustainability_importance_percentage=input_request.sustainability_importance_percentage,
-            budget_max=input_request.budget_max
+            max_budget=input_request.max_budget
         )
         
-        original_shopping_list = EvaluatedShoppingListDto()
-        for item in input_request.list_to_optimize:
-            original_shopping_list.shopping_list.append(item)
         
-        original_shopping_list.total_price = optimization_result.original_shopping_list.total_price
-        original_shopping_list.sustainability_score = optimization_result.original_shopping_list.sustainability_score
-        original_shopping_list.price_score = optimization_result.original_shopping_list.price_score
-        original_shopping_list.total_objective_score = optimization_result.original_shopping_list.total_objective_score
-        
-        
-        
-        
-        optimized_shopping_list_dto = ProductWithStoreDto.model_validate(optimization_result.optimized_shopping_list)
-        
-        
-        #Todo: fill result data with object returned by the service
-        evaluated_optimized_shopping_list = EvaluatedShoppingListDto(
-            shopping_list= optimization_result.optimized_shopping_list,
-            total_price=optimization_result.optimized_shopping_list.total_price,
-            sustainability_score=optimization_result.optimized_shopping_list.sustainability_score,
-            price_score=optimization_result.optimized_shopping_list.price_score,
-            total_objective_score=optimization_result.optimized_shopping_list.total_objective_score,
-            shopping_list_dto=optimized_shopping_list_dto
+        optimization_data: ShoppingListOptimizationData = ShoppingListOptimizationData(
+            original_shopping_list=original_shopping_list,
+            best_solution_shopping_list=None,
+            price_importance_percentage=input_request.price_importance_percentage,
+            sustainability_importance_percentage=input_request.sustainability_importance_percentage,
+            max_budget=input_request.max_budget
         )
         
-
-       
-
-
-
-        #dummy optimization data
+        
+        optimization_result = shopping_list_service.optimize_shopping_list(optimization_data)
+        return None
+      
+        '''  
         result = ShoppingListOptimizationOutputDto(
             original_shopping_list=original_shopping_list,
-            optimized_shopping_list=evaluated_optimized_shopping_list,
+            optimized_shopping_list=optimization_result.best_solution_shopping_list,
             price_importance_percentage=input_request.price_importance_percentage,
             sustainability_importance_percentage=input_request.sustainability_importance_percentage,
-            budget_max=input_request.budget_max
-        )   
-
-        result.difference_in_price = result.original_shopping_list.total_price - result.optimized_shopping_list.total_price
-        result.difference_in_sustainability_score = result.original_shopping_list.sustainability_score - result.optimized_shopping_list.sustainability_score
-        result.difference_in_total_score = result.original_shopping_list.total_objective_score - result.optimized_shopping_list.total_objective_score
+            max_budget=input_request.max_budget
+        )
+        '''
+        
+    
     except ValidationError as e:
         error_details = []
         for error in e.errors():

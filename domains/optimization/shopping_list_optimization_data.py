@@ -1,34 +1,38 @@
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import List
-
-from domains.product import ProductWithStore
+from domains.optimization.optimization_product_list_with_store import OptimizationProductListWithStore
 
 
 @dataclass
 class ShoppingListOptimizationData():
-    original_shopping_list_ids: list[int]
-    optimized_shopping_list: list[ProductWithStore]
+    original_shopping_list: OptimizationProductListWithStore
+    best_solution_shopping_list: OptimizationProductListWithStore
 
-
-    original_shopping_list_total_price: Decimal
-    optimized_shopping_list_total_price: Decimal
+    @property
+    def difference_in_price_vs_best_solution(self) -> Decimal | None:
+        if self.best_solution_shopping_list is None or self.original_shopping_list is None:
+            return None
+        return self.best_solution_shopping_list.total_price - self.original_shopping_list.total_price
     
-    original_shopping_list_sustainability_score: Decimal
-    optimized_shopping_list_sustainability_score: Decimal
-
-    original_shopping_list_price_score: Decimal
-    optimized_shopping_list_price_score: Decimal
-
-    original_shopping_list_total_objective_score: Decimal
-    optimized_shopping_list_total_objective_score: Decimal
+    @property
+    def difference_in_sustainability_score_vs_best_solution(self) -> Decimal | None:
+        if self.best_solution_shopping_list is None or self.original_shopping_list is None:
+            return None
+        return self.best_solution_shopping_list.total_sustainability_score - self.original_shopping_list.total_sustainability_score
+    
+    @property
+    def difference_in_price_score_vs_best_solution(self) -> Decimal | None:
+        if self.best_solution_shopping_list is None or self.original_shopping_list is None:
+            return None
+        return self.best_solution_shopping_list.total_price_score - self.original_shopping_list.total_price_score
+    
+    @property
+    def difference_in_total_score_vs_best_solution(self) -> Decimal | None:
+        if self.best_solution_shopping_list is None or self.original_shopping_list is None:
+            return None
+        return self.best_solution_shopping_list.total_objective_score - self.original_shopping_list.total_objective_score
     
 
-    difference_in_price: Decimal
-    difference_in_sustainability_score: Decimal
-    difference_in_total_score: Decimal
-
-
-    price_importance_percentage: float 
-    sustainability_importance_percentage: float 
-    budget_max: Decimal 
+    price_importance_percentage: Decimal 
+    sustainability_importance_percentage: Decimal 
+    max_budget: Decimal 

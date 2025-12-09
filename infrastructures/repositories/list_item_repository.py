@@ -2,6 +2,7 @@ from sqlmodel import Session, select
 from datetime import datetime
 from domains.list_item import ListItem
 from domains.list_item_repository_interface import IListItemRepository
+from domains.product import ProductWithStore
 from infrastructures.database.models import ListItemsTable
 
 class ListItemRepository(IListItemRepository):
@@ -99,3 +100,4 @@ class ListItemRepository(IListItemRepository):
         self.session.delete(db_item)
         self.session.commit()
         return True
+
