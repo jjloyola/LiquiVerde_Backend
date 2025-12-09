@@ -43,9 +43,6 @@ class ProductRepository(IProductRepository):
             
         )
     def fill_product_with_stores(self, db_product: ProductTable) -> ProductWithStore:
-       
-        
-        
         product_store_with_price_list: list[ProductStoreWithPrice] = []
         for i  in range(len(db_product.product_stores)):
             product_store = db_product.product_stores[i]
@@ -120,7 +117,7 @@ class ProductRepository(IProductRepository):
             return None
         if not db_product:
             return None
-        return self._fill_one_product_from_db(db_product)
+        return self.fill_product_with_stores(db_product)
     
     def find_by_barcode(self, barcode: str) -> ProductWithStore | None:
         """Find a product by barcode"""
